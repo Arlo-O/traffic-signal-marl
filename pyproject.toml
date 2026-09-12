@@ -3,7 +3,7 @@ name = "traffic-rl"
 version = "0.1.0"
 description = "Autonomous cybernetic multi-agent system for traffic signal control (Q-learning & DQN over Gymnasium)."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 license = { text = "GPL-3.0-or-later" }
 authors = [
     { name = "Juan Santiago Ramos Ome" },
@@ -18,7 +18,7 @@ dependencies = [
     "pygame>=2.5",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
@@ -26,13 +26,16 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+# Apuntar setuptools a la carpeta src/
 [tool.setuptools.packages.find]
 where = ["src"]
 
+# Apuntar pytest a la carpeta src/
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 testpaths = ["tests"]
 
 [tool.ruff]
