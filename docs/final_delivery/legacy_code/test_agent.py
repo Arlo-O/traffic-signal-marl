@@ -1,12 +1,13 @@
-from environment.intersection_env import IntersectionEnv
-from agents.q_learning_agent import QLearningAgent
-from agents.dqn_agent import DQNAgent
-import numpy as np
 import argparse
-import pygame
-import time
 import csv
+import time
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pygame
+from agents.dqn_agent import DQNAgent
+from agents.q_learning_agent import QLearningAgent
+from environment.intersection_env import IntersectionEnv
 
 WIDTH, HEIGHT = 900, 600
 INTERSECTION_SIZE = 120
@@ -19,39 +20,71 @@ BLUE = (40, 90, 255)
 PED_COLOR = (255, 120, 120)
 BG_COLOR = (230, 235, 240)
 
+
 def split_state(full_state, agent_id, total_agents=2):
     size = len(full_state) // total_agents
-    return full_state[agent_id * size:(agent_id + 1) * size]
+    return full_state[agent_id * size : (agent_id + 1) * size]
+
 
 def draw_street_network(screen):
     road_color = (40, 40, 40)
     road_width = INTERSECTION_SIZE
 
-    pygame.draw.rect(screen, road_color,
-                     (WIDTH // 2 - road_width // 2, HEIGHT // 2 - 200 + INTERSECTION_SIZE,
-                      road_width, 300))
-    pygame.draw.rect(screen, road_color,
-                     (WIDTH // 2 - road_width // 2, 0,
-                      road_width, HEIGHT // 2 - 200))
-    pygame.draw.rect(screen, road_color,
-                     (WIDTH // 2 - road_width // 2, HEIGHT // 2 + 100 + INTERSECTION_SIZE,
-                      road_width, HEIGHT // 2 - 100 - INTERSECTION_SIZE))
-    pygame.draw.rect(screen, road_color,
-                     (0, HEIGHT // 2 - 200 + INTERSECTION_SIZE // 2 - road_width // 2,
-                      WIDTH, road_width))
-    pygame.draw.rect(screen, road_color,
-                     (0, HEIGHT // 2 + 100 + INTERSECTION_SIZE // 2 - road_width // 2,
-                      WIDTH, road_width))
+    pygame.draw.rect(
+        screen,
+        road_color,
+        (WIDTH // 2 - road_width // 2, HEIGHT // 2 - 200 + INTERSECTION_SIZE, road_width, 300),
+    )
+    pygame.draw.rect(
+        screen, road_color, (WIDTH // 2 - road_width // 2, 0, road_width, HEIGHT // 2 - 200)
+    )
+    pygame.draw.rect(
+        screen,
+        road_color,
+        (
+            WIDTH // 2 - road_width // 2,
+            HEIGHT // 2 + 100 + INTERSECTION_SIZE,
+            road_width,
+            HEIGHT // 2 - 100 - INTERSECTION_SIZE,
+        ),
+    )
+    pygame.draw.rect(
+        screen,
+        road_color,
+        (0, HEIGHT // 2 - 200 + INTERSECTION_SIZE // 2 - road_width // 2, WIDTH, road_width),
+    )
+    pygame.draw.rect(
+        screen,
+        road_color,
+        (0, HEIGHT // 2 + 100 + INTERSECTION_SIZE // 2 - road_width // 2, WIDTH, road_width),
+    )
 
-def draw_intersection(screen, font, font_big, x, y, phase, label, queues, ped_requests, ped_cross_timer, vehicle_cross_timer):
+
+def draw_intersection(
+    screen,
+    font,
+    font_big,
+    x,
+    y,
+    phase,
+    label,
+    queues,
+    ped_requests,
+    ped_cross_timer,
+    vehicle_cross_timer,
+):
     pygame.draw.rect(screen, GRAY, (x, y, INTERSECTION_SIZE, INTERSECTION_SIZE), border_radius=12)
     label_surface = font.render(label, True, WHITE)
     screen.blit(label_surface, (x + 5, y + 5))
     ns_color = GREEN if phase == 0 else RED
     ew_color = GREEN if phase == 1 else RED
     pygame.draw.circle(screen, ns_color, (x + INTERSECTION_SIZE // 2 - 50, y - 15), 8)
-    pygame.draw.circle(screen, ns_color, (x + INTERSECTION_SIZE // 2 + 50, y + INTERSECTION_SIZE + 15), 8)
-    pygame.draw.circle(screen, ew_color, (x + INTERSECTION_SIZE + 15, y + INTERSECTION_SIZE // 2 - 50), 8)
+    pygame.draw.circle(
+        screen, ns_color, (x + INTERSECTION_SIZE // 2 + 50, y + INTERSECTION_SIZE + 15), 8
+    )
+    pygame.draw.circle(
+        screen, ew_color, (x + INTERSECTION_SIZE + 15, y + INTERSECTION_SIZE // 2 - 50), 8
+    )
     pygame.draw.circle(screen, ew_color, (x - 15, y + INTERSECTION_SIZE // 2 + 50), 8)
     cross_color = WHITE
     line_width = 2
@@ -59,12 +92,22 @@ def draw_intersection(screen, font, font_big, x, y, phase, label, queues, ped_re
     length = INTERSECTION_SIZE
     for i in range(0, length, step * 2):
         pygame.draw.line(screen, cross_color, (x + i, y - 10), (x + i + step, y - 10), line_width)
-        pygame.draw.line(screen, cross_color, (x + i, y + INTERSECTION_SIZE + 10),
-                         (x + i + step, y + INTERSECTION_SIZE + 10), line_width)
+        pygame.draw.line(
+            screen,
+            cross_color,
+            (x + i, y + INTERSECTION_SIZE + 10),
+            (x + i + step, y + INTERSECTION_SIZE + 10),
+            line_width,
+        )
     for i in range(0, length, step * 2):
         pygame.draw.line(screen, cross_color, (x - 10, y + i), (x - 10, y + i + step), line_width)
-        pygame.draw.line(screen, cross_color, (x + INTERSECTION_SIZE + 10, y + i),
-                         (x + INTERSECTION_SIZE + 10, y + i + step), line_width)
+        pygame.draw.line(
+            screen,
+            cross_color,
+            (x + INTERSECTION_SIZE + 10, y + i),
+            (x + INTERSECTION_SIZE + 10, y + i + step),
+            line_width,
+        )
     for d in range(4):
         for q in range(queues[d]):
             if d == 0:
@@ -131,6 +174,7 @@ def draw_intersection(screen, font, font_big, x, y, phase, label, queues, ped_re
                 px, py = x + 10, y + INTERSECTION_SIZE // 2
             pygame.draw.circle(screen, PED_COLOR, (px, py), 10, 2)
 
+
 def test_agent(agent_type="q", episodes=10, step_delay=0.2):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -181,23 +225,39 @@ def test_agent(agent_type="q", episodes=10, step_delay=0.2):
             phaseB = np.argmax(env.signals[1])
 
             draw_intersection(
-                screen, font, font_big,
-                xA, yA,
-                phaseA, "A",
-                env.queues[0], env.ped_requests[0], env.ped_timers[0], env.signal_timer[0]
+                screen,
+                font,
+                font_big,
+                xA,
+                yA,
+                phaseA,
+                "A",
+                env.queues[0],
+                env.ped_requests[0],
+                env.ped_timers[0],
+                env.signal_timer[0],
             )
             draw_intersection(
-                screen, font, font_big,
-                xB, yB,
-                phaseB, "B",
-                env.queues[1], env.ped_requests[1], env.ped_timers[1], env.signal_timer[1]
+                screen,
+                font,
+                font_big,
+                xB,
+                yB,
+                phaseB,
+                "B",
+                env.queues[1],
+                env.ped_requests[1],
+                env.ped_timers[1],
+                env.signal_timer[1],
             )
 
             ped_served, ped_avg_wait = env.get_pedestrian_metrics()
             veh_crossed = np.sum(env.get_vehicle_metrics())
-            txt1 = font_big.render(f"Pedestrians served: {ped_served} | Avg wait: {ped_avg_wait:.2f}", True, BLACK)
+            txt1 = font_big.render(
+                f"Pedestrians served: {ped_served} | Avg wait: {ped_avg_wait:.2f}", True, BLACK
+            )
             txt2 = font_big.render(f"Vehicles crossed: {veh_crossed}", True, BLACK)
-            txt3 = font_big.render(f"Episode {ep+1}/{episodes}", True, BLACK)
+            txt3 = font_big.render(f"Episode {ep + 1}/{episodes}", True, BLACK)
             screen.blit(txt1, (30, 20))
             screen.blit(txt2, (30, 50))
             screen.blit(txt3, (30, 80))
@@ -222,7 +282,9 @@ def test_agent(agent_type="q", episodes=10, step_delay=0.2):
         ped_served, ped_wait = env.get_pedestrian_metrics()
         pedestrians_served.append(ped_served)
         avg_ped_wait.append(ped_wait)
-        print(f"Ep {ep+1}: reward={ep_reward}, vehicles={vehicles_crossed[-1]}, peds={pedestrians_served[-1]}, wait={avg_ped_wait[-1]}")
+        print(
+            f"Ep {ep + 1}: reward={ep_reward}, vehicles={vehicles_crossed[-1]}, peds={pedestrians_served[-1]}, wait={avg_ped_wait[-1]}"
+        )
     pygame.quit()
     print(f"Average test reward: {np.mean(total_rewards):.2f}")
 
@@ -230,7 +292,9 @@ def test_agent(agent_type="q", episodes=10, step_delay=0.2):
         writer = csv.writer(f)
         writer.writerow(["Episode", "Reward", "VehiclesCrossed", "PedestriansServed", "AvgPedWait"])
         for i in range(episodes):
-            writer.writerow([i+1, rewards[i], vehicles_crossed[i], pedestrians_served[i], avg_ped_wait[i]])
+            writer.writerow(
+                [i + 1, rewards[i], vehicles_crossed[i], pedestrians_served[i], avg_ped_wait[i]]
+            )
 
     plt.plot(rewards, label="Reward")
     plt.plot(vehicles_crossed, label="Vehicles Crossed")
@@ -241,8 +305,10 @@ def test_agent(agent_type="q", episodes=10, step_delay=0.2):
     plt.title("Test Metrics per Episode")
     plt.show()
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--agent", choices=["q", "dqn"], required=True)
     parser.add_argument("--episodes", type=int, default=10)

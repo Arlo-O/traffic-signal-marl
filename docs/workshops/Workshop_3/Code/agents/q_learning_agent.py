@@ -1,5 +1,7 @@
-import numpy as np
 import random
+
+import numpy as np
+
 
 class QLearningAgent:
     def __init__(self, state_size, action_size, alpha=0.1, gamma=0.99, epsilon=0.1):
@@ -20,7 +22,9 @@ class QLearningAgent:
         idx = self.state_to_index(state)
         next_idx = self.state_to_index(next_state)
         best_next = np.max(self.q_table[next_idx])
-        self.q_table[idx][action] += self.alpha * (reward + self.gamma * best_next - self.q_table[idx][action])
+        self.q_table[idx][action] += self.alpha * (
+            reward + self.gamma * best_next - self.q_table[idx][action]
+        )
 
     def state_to_index(self, state):
         # Very simple binarization-based indexing (works if state is scaled [0,1])

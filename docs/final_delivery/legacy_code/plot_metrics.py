@@ -1,6 +1,8 @@
-import pandas as pd
-import matplotlib.pyplot as plt
 import sys
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
 
 def plot_metrics(csv_file, label_prefix=""):
     data = pd.read_csv(csv_file)
@@ -58,6 +60,7 @@ def plot_metrics(csv_file, label_prefix=""):
     plt.tight_layout()
     plt.savefig(f"plots/ped_wait_plot_{label_prefix.lower()}.png")
     print(f"[✓] Saved: ped_wait_plot_{label_prefix.lower()}.png")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:

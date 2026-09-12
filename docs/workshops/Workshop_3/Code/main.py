@@ -1,14 +1,17 @@
-from environment.intersection_env import IntersectionEnv
-from agents.q_learning_agent import QLearningAgent
-from agents.dqn_agent import DQNAgent
 import argparse
-import numpy as np
-import matplotlib.pyplot as plt
 import csv
+
+import matplotlib.pyplot as plt
+import numpy as np
+from agents.dqn_agent import DQNAgent
+from agents.q_learning_agent import QLearningAgent
+from environment.intersection_env import IntersectionEnv
+
 
 def split_state(full_state, agent_id, total_agents=2):
     size = len(full_state) // total_agents
-    return full_state[agent_id * size:(agent_id + 1) * size]
+    return full_state[agent_id * size : (agent_id + 1) * size]
+
 
 def train_multi_agent(agent_type="q", episodes=100):
     env = IntersectionEnv()
@@ -70,25 +73,33 @@ def train_multi_agent(agent_type="q", episodes=100):
         ped_served_list.append(served)
         ped_wait_list.append(avg_wait)
 
-        print(f"[{agent_type.upper()}] Ep {ep+1}: Reward={total_reward:.1f}, Queue={avg_queue:.2f}, Peds={served}, Wait={avg_wait:.2f}")
+        print(
+            f"[{agent_type.upper()}] Ep {ep + 1}: Reward={total_reward:.1f}, Queue={avg_queue:.2f}, Peds={served}, Wait={avg_wait:.2f}"
+        )
 
     # Save results
     with open("training_metrics.csv", mode="w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["Episode", "TotalReward", "AvgVehicleQueue", "PedestriansServed", "AvgPedestrianWait"])
+        writer.writerow(
+            ["Episode", "TotalReward", "AvgVehicleQueue", "PedestriansServed", "AvgPedestrianWait"]
+        )
         for i in range(episodes):
-            writer.writerow([i+1, rewards[i], avg_queues[i], ped_served_list[i], ped_wait_list[i]])
+            writer.writerow(
+                [i + 1, rewards[i], avg_queues[i], ped_served_list[i], ped_wait_list[i]]
+            )
 
     return rewards
 
+
 def plot_rewards(rewards, label):
     plt.plot(rewards, label=label)
-    plt.xlabel('Episode')
-    plt.ylabel('Total Reward')
-    plt.title('Multi-Agent Learning Performance')
+    plt.xlabel("Episode")
+    plt.ylabel("Total Reward")
+    plt.title("Multi-Agent Learning Performance")
     plt.legend()
     plt.grid(True)
     plt.show()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

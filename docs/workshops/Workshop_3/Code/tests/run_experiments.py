@@ -1,5 +1,5 @@
-from environment.intersection_env import IntersectionEnv
 from agents.q_learning_agent import QLearningAgent
+from environment.intersection_env import IntersectionEnv
 
 env = IntersectionEnv()
 agent = QLearningAgent(state_size=10, action_size=4)

@@ -1,14 +1,16 @@
 import argparse
 import time
-from environment.intersection_env import IntersectionEnv
-from agents.q_learning_agent import QLearningAgent
+
 from agents.dqn_agent import DQNAgent
+from agents.q_learning_agent import QLearningAgent
 from Code.pygame_renderer import Renderer  # we’ll build this next
-import numpy as np
+from environment.intersection_env import IntersectionEnv
+
 
 def split_state(full_state, agent_id, total_agents=2):
     size = len(full_state) // total_agents
-    return full_state[agent_id * size:(agent_id + 1) * size]
+    return full_state[agent_id * size : (agent_id + 1) * size]
+
 
 def run_test(agent_type="q", episodes=5, render_delay=0.5):
     env = IntersectionEnv()
@@ -31,7 +33,7 @@ def run_test(agent_type="q", episodes=5, render_delay=0.5):
     renderer = Renderer()
 
     for ep in range(episodes):
-        print(f"\n[Test] Episode {ep+1}")
+        print(f"\n[Test] Episode {ep + 1}")
         state = env.reset()
         done = False
         total_reward = 0
@@ -49,7 +51,8 @@ def run_test(agent_type="q", episodes=5, render_delay=0.5):
             renderer.render(env)  # Show current state
             time.sleep(render_delay)
 
-        print(f"[Test] Ep {ep+1} total reward: {total_reward:.2f}")
+        print(f"[Test] Ep {ep + 1} total reward: {total_reward:.2f}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -58,4 +61,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     run_test(agent_type=args.agent, episodes=args.episodes)
-

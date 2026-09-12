@@ -1,21 +1,19 @@
+import random
+from collections import deque
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import random
-import numpy as np
-from collections import deque
+
 
 class DQN(nn.Module):
     def __init__(self, state_dim, action_dim):
-        super(DQN, self).__init__()
-        self.layers = nn.Sequential(
-            nn.Linear(state_dim, 64),
-            nn.ReLU(),
-            nn.Linear(64, action_dim)
-        )
+        super().__init__()
+        self.layers = nn.Sequential(nn.Linear(state_dim, 64), nn.ReLU(), nn.Linear(64, action_dim))
 
     def forward(self, x):
         return self.layers(x)
+
 
 class DQNAgent:
     def __init__(self, state_dim, action_dim):
@@ -58,7 +56,6 @@ class DQNAgent:
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
-
 
     def save(self, filepath):
         torch.save(self.model.state_dict(), filepath)

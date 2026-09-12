@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def extract_state():
     # Mocked state vector: include queue lengths, signal status, pedestrian requests
     traffic_flow = np.random.rand(2)

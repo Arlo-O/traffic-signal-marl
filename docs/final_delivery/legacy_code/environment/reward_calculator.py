@@ -1,6 +1,12 @@
 class RewardCalculator:
-    def __init__(self, vehicle_reward=2.0, ped_reward=3.0, blocked_penalty=-1.0,
-                 crossing_penalty=-2.0, turn_over_penalty=-2.0):
+    def __init__(
+        self,
+        vehicle_reward=2.0,
+        ped_reward=3.0,
+        blocked_penalty=-1.0,
+        crossing_penalty=-2.0,
+        turn_over_penalty=-2.0,
+    ):
         self.vehicle_reward = vehicle_reward
         self.ped_reward = ped_reward
         self.blocked_penalty = blocked_penalty

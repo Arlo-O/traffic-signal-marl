@@ -1,10 +1,11 @@
-import pygame
-import numpy as np
 import sys
 import time
-from environment.intersection_env import IntersectionEnv
-from agents.q_learning_agent import QLearningAgent
+
+import numpy as np
+import pygame
 from agents.dqn_agent import DQNAgent
+from agents.q_learning_agent import QLearningAgent
+from environment.intersection_env import IntersectionEnv
 
 # --- Visual constants ---
 WIDTH, HEIGHT = 900, 600
@@ -25,39 +26,57 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 20)
 font_big = pygame.font.SysFont(None, 28)
 
+
 def split_state(full_state, agent_id, total_agents=2):
     size = len(full_state) // total_agents
-    return full_state[agent_id * size:(agent_id + 1) * size]
+    return full_state[agent_id * size : (agent_id + 1) * size]
+
 
 def draw_street_network():
     road_color = (40, 40, 40)
     road_width = INTERSECTION_SIZE
 
     # Vertical road strip between A and B
-    pygame.draw.rect(screen, road_color,
-                     (WIDTH // 2 - road_width // 2, HEIGHT // 2 - 200 + INTERSECTION_SIZE,
-                      road_width, 300))
+    pygame.draw.rect(
+        screen,
+        road_color,
+        (WIDTH // 2 - road_width // 2, HEIGHT // 2 - 200 + INTERSECTION_SIZE, road_width, 300),
+    )
 
     # North to top edge
-    pygame.draw.rect(screen, road_color,
-                     (WIDTH // 2 - road_width // 2, 0,
-                      road_width, HEIGHT // 2 - 200))
+    pygame.draw.rect(
+        screen, road_color, (WIDTH // 2 - road_width // 2, 0, road_width, HEIGHT // 2 - 200)
+    )
 
     # South to bottom edge
-    pygame.draw.rect(screen, road_color,
-                     (WIDTH // 2 - road_width // 2, HEIGHT // 2 + 100 + INTERSECTION_SIZE,
-                      road_width, HEIGHT // 2 - 100 - INTERSECTION_SIZE))
+    pygame.draw.rect(
+        screen,
+        road_color,
+        (
+            WIDTH // 2 - road_width // 2,
+            HEIGHT // 2 + 100 + INTERSECTION_SIZE,
+            road_width,
+            HEIGHT // 2 - 100 - INTERSECTION_SIZE,
+        ),
+    )
 
     # Horizontal roads (E-W)
-    pygame.draw.rect(screen, road_color,
-                     (0, HEIGHT // 2 - 200 + INTERSECTION_SIZE // 2 - road_width // 2,
-                      WIDTH, road_width))  # B
+    pygame.draw.rect(
+        screen,
+        road_color,
+        (0, HEIGHT // 2 - 200 + INTERSECTION_SIZE // 2 - road_width // 2, WIDTH, road_width),
+    )  # B
 
-    pygame.draw.rect(screen, road_color,
-                     (0, HEIGHT // 2 + 100 + INTERSECTION_SIZE // 2 - road_width // 2,
-                      WIDTH, road_width))  # A
+    pygame.draw.rect(
+        screen,
+        road_color,
+        (0, HEIGHT // 2 + 100 + INTERSECTION_SIZE // 2 - road_width // 2, WIDTH, road_width),
+    )  # A
 
-def draw_intersection(x, y, phase, label, queues, ped_requests, ped_cross_timer, vehicle_cross_timer):
+
+def draw_intersection(
+    x, y, phase, label, queues, ped_requests, ped_cross_timer, vehicle_cross_timer
+):
     # Base intersection square
     pygame.draw.rect(screen, GRAY, (x, y, INTERSECTION_SIZE, INTERSECTION_SIZE), border_radius=12)
 
@@ -69,8 +88,12 @@ def draw_intersection(x, y, phase, label, queues, ped_requests, ped_cross_timer,
     ns_color = GREEN if phase == 0 else RED
     ew_color = GREEN if phase == 1 else RED
     pygame.draw.circle(screen, ns_color, (x + INTERSECTION_SIZE // 2 - 50, y - 15), 8)
-    pygame.draw.circle(screen, ns_color, (x + INTERSECTION_SIZE // 2 + 50, y + INTERSECTION_SIZE + 15), 8)
-    pygame.draw.circle(screen, ew_color, (x + INTERSECTION_SIZE + 15, y + INTERSECTION_SIZE // 2 - 50), 8)
+    pygame.draw.circle(
+        screen, ns_color, (x + INTERSECTION_SIZE // 2 + 50, y + INTERSECTION_SIZE + 15), 8
+    )
+    pygame.draw.circle(
+        screen, ew_color, (x + INTERSECTION_SIZE + 15, y + INTERSECTION_SIZE // 2 - 50), 8
+    )
     pygame.draw.circle(screen, ew_color, (x - 15, y + INTERSECTION_SIZE // 2 + 50), 8)
 
     # Draw crosswalks
@@ -83,14 +106,24 @@ def draw_intersection(x, y, phase, label, queues, ped_requests, ped_cross_timer,
         # Top
         pygame.draw.line(screen, cross_color, (x + i, y - 10), (x + i + step, y - 10), line_width)
         # Bottom
-        pygame.draw.line(screen, cross_color, (x + i, y + INTERSECTION_SIZE + 10),
-                         (x + i + step, y + INTERSECTION_SIZE + 10), line_width)
+        pygame.draw.line(
+            screen,
+            cross_color,
+            (x + i, y + INTERSECTION_SIZE + 10),
+            (x + i + step, y + INTERSECTION_SIZE + 10),
+            line_width,
+        )
     for i in range(0, length, step * 2):
         # Left
         pygame.draw.line(screen, cross_color, (x - 10, y + i), (x - 10, y + i + step), line_width)
         # Right
-        pygame.draw.line(screen, cross_color, (x + INTERSECTION_SIZE + 10, y + i),
-                         (x + INTERSECTION_SIZE + 10, y + i + step), line_width)
+        pygame.draw.line(
+            screen,
+            cross_color,
+            (x + INTERSECTION_SIZE + 10, y + i),
+            (x + INTERSECTION_SIZE + 10, y + i + step),
+            line_width,
+        )
 
     # Draw vehicles in queues (N=0, E=1, S=2, W=3)
     for d in range(4):
@@ -165,6 +198,8 @@ def draw_intersection(x, y, phase, label, queues, ped_requests, ped_cross_timer,
             else:
                 px, py = x + 10, y + INTERSECTION_SIZE // 2
             pygame.draw.circle(screen, PED_COLOR, (px, py), 10, 2)
+
+
 def main():
     env = IntersectionEnv()
     state = env.reset()
@@ -201,20 +236,32 @@ def main():
 
         # Draw intersections
         draw_intersection(
-            xA, yA,
-            phaseA, "A",
-            env.queues[0], env.ped_requests[0], env.ped_timers[0], env.signal_timer[0]
+            xA,
+            yA,
+            phaseA,
+            "A",
+            env.queues[0],
+            env.ped_requests[0],
+            env.ped_timers[0],
+            env.signal_timer[0],
         )
         draw_intersection(
-            xB, yB,
-            phaseB, "B",
-            env.queues[1], env.ped_requests[1], env.ped_timers[1], env.signal_timer[1]
+            xB,
+            yB,
+            phaseB,
+            "B",
+            env.queues[1],
+            env.ped_requests[1],
+            env.ped_timers[1],
+            env.signal_timer[1],
         )
 
         # Draw metrics
         ped_served, ped_avg_wait = env.get_pedestrian_metrics()
         veh_crossed = np.sum(env.get_vehicle_metrics())
-        txt1 = font_big.render(f"Pedestrians served: {ped_served} | Avg wait: {ped_avg_wait:.2f}", True, BLACK)
+        txt1 = font_big.render(
+            f"Pedestrians served: {ped_served} | Avg wait: {ped_avg_wait:.2f}", True, BLACK
+        )
         txt2 = font_big.render(f"Vehicles crossed: {veh_crossed}", True, BLACK)
         screen.blit(txt1, (30, 20))
         screen.blit(txt2, (30, 50))
@@ -238,6 +285,7 @@ def main():
         clock.tick(60)
     pygame.quit()
     sys.exit()
+
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,7 @@
 import gym
-from gym import spaces
 import numpy as np
+from gym import spaces
+
 
 class IntersectionEnv(gym.Env):
     def __init__(self):
@@ -14,13 +15,17 @@ class IntersectionEnv(gym.Env):
 
         self.state_size = self.num_intersections * self.num_directions * 4
         self.action_space = spaces.MultiDiscrete([self.num_directions] * self.num_intersections)
-        self.observation_space = spaces.Box(low=0, high=1, shape=(self.state_size,), dtype=np.float32)
+        self.observation_space = spaces.Box(
+            low=0, high=1, shape=(self.state_size,), dtype=np.float32
+        )
 
         self.reset()
 
     def reset(self):
         self.queues = np.random.randint(0, 5, size=(self.num_intersections, self.num_directions))
-        self.ped_requests = np.random.randint(0, 2, size=(self.num_intersections, self.num_directions))
+        self.ped_requests = np.random.randint(
+            0, 2, size=(self.num_intersections, self.num_directions)
+        )
         self.ped_timers = np.zeros_like(self.ped_requests)
         self.signals = np.zeros_like(self.queues)
         self.signal_timer = np.zeros_like(self.queues)

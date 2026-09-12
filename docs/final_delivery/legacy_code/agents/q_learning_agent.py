@@ -1,6 +1,8 @@
-import numpy as np
-import random
 import pickle
+import random
+
+import numpy as np
+
 
 class QLearningAgent:
     def __init__(self, state_size, action_size, alpha=0.1, gamma=0.99, epsilon=0.1):
@@ -21,13 +23,15 @@ class QLearningAgent:
         idx = self.state_to_index(state)
         next_idx = self.state_to_index(next_state)
         best_next = np.max(self.q_table[next_idx])
-        self.q_table[idx][action] += self.alpha * (reward + self.gamma * best_next - self.q_table[idx][action])
+        self.q_table[idx][action] += self.alpha * (
+            reward + self.gamma * best_next - self.q_table[idx][action]
+        )
 
     def state_to_index(self, state):
         # Very simple binarization-based indexing (works if state is scaled [0,1])
         binary_state = (state > 0.5).astype(int)
         return int("".join(str(b) for b in binary_state), 2)
-    
+
     def save(self, filepath):
         with open(filepath, "wb") as f:
             pickle.dump(self.q_table, f)
