@@ -1,0 +1,11 @@
+# Escenario de trafico "normal" - usado para entrenamiento base.
+# TODO (Fase 2.0/2.2): confirmar campos tras el diseño de TrafficConfig.
+scenario_name: normal
+seed: 42
+num_intersections: 2
+min_green: 4
+capacity: 3
+arrival_rate_ns: 0.6
+arrival_rate_ew: 0.6
+pedestrian_rate: 0.1
+episode_length: 150

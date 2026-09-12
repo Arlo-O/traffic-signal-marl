@@ -1,0 +1,10 @@
+# Escenario de hora pico - usado en evaluacion fuera de entrenamiento (Fase 2.4).
+scenario_name: rush_hour
+seed: 42
+num_intersections: 2
+min_green: 4
+capacity: 3
+arrival_rate_ns: 1.4
+arrival_rate_ew: 1.4
+pedestrian_rate: 0.2
+episode_length: 150
